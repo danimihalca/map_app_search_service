@@ -1,0 +1,98 @@
+@startuml Class Diagram
+
+skinparam linetype ortho
+' skinparam rectangle {
+'     BackgroundColor #DDDDDD
+' }
+
+skinparam package {
+    BackgroundColor #DDDDDD
+}
+
+' set separator none
+
+rectangle "Endpoint Layer" as endpoint_layer #EEEBDC {
+    namespace endpoint {
+        class SearchController {
+            +places()
+        }
+    }
+}
+
+rectangle "Service Layer" as service_layer #EEEBDC {
+    ' Main service
+    namespace service {
+        interface SearchService {
+            {abstract} +searchPlaces()
+        }
+    }
+
+    namespace serviceImpl {
+        class SearchServiceProxyImpl {
+            +searchPlaces()
+        }
+    }
+
+    ' Relations
+    serviceImpl.SearchServiceProxyImpl --|> service.SearchService
+
+    ' Alignment
+    service -[hidden]down- serviceImpl
+
+
+
+}
+
+rectangle "Utils" as utils_layer #EEEBDC {
+    ' HTTP Client
+    namespace httpClient {
+        interface HttpClient {
+            {abstract} +sendRequest()
+        }
+
+
+    }
+
+    namespace httpClientImpl {
+        class HttpClientImpl {
+            +sendRequest()
+        }
+
+    }
+
+    ' Relations
+    httpClientImpl.HttpClientImpl --|> httpClient.HttpClient
+
+    ' Alignment
+    httpClient -[hidden]down- httpClientImpl
+}
+
+
+' External dependencies
+rectangle "External" as external_layer #EEEBDC{
+    namespace drogon {
+        interface HttpController
+        interface HttpClient
+
+        ' Alignment
+        HttpController -[hidden]down- HttpClient
+    }
+}
+
+
+' Relations
+endpoint.SearchController --|> drogon.HttpController
+endpoint.SearchController o--> service.SearchService
+
+serviceImpl.SearchServiceProxyImpl --> httpClient.HttpClient
+
+httpClientImpl.HttpClientImpl *-- drogon.HttpClient
+
+
+' Alignment
+endpoint_layer -[hidden]down- service_layer
+service_layer -[hidden]down- external_layer
+utils_layer -[hidden]right- external_layer
+
+
+@enduml
