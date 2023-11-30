@@ -28,10 +28,22 @@ rectangle "Service Layer" as service_layer #EEEBDC {
     }
 
     namespace serviceImpl {
+        interface PathBuilder {
+            {abstract} +withBasePath()
+            {abstract} +withQuery()
+            {abstract} +withParameter()
+            {abstract} +build()
+            {abstract} +reset()
+        }
+        class MapBoxPlacesPathBuilder
+
         class SearchServiceProxyImpl {
             +searchPlaces()
         }
-    }
+
+        MapBoxPlacesPathBuilder --|> PathBuilder
+        SearchServiceProxyImpl --> PathBuilder
+   }
 
     ' Relations
     serviceImpl.SearchServiceProxyImpl --|> service.SearchService

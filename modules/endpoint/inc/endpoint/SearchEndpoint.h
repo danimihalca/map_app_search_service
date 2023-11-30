@@ -1,9 +1,15 @@
 #ifndef SEARCHENDPOINT_H
 #define SEARCHENDPOINT_H
 
+#include <memory>
 #include <string>
 
 #include <drogon/drogon.h>
+
+namespace service
+{
+class SearchService;
+}
 
 namespace endpoint
 {
@@ -17,8 +23,14 @@ public:
 
     METHOD_LIST_END
 
+public:
+    SearchEndpoint(std::unique_ptr<service::SearchService>&& service);
+
     void places(const drogon::HttpRequestPtr& request, std::function<void(const drogon::HttpResponsePtr&)>&& callback,
                 const std::string& queryText);
+
+private:
+    std::unique_ptr<service::SearchService> m_searchService;
 };
 
 }  // namespace endpoint

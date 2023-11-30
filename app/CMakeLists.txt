@@ -23,4 +23,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PUBLIC ${Drogon_LIBRARIES}
     PUBLIC endpoint
+    PUBLIC httpClientImpl
+    PUBLIC serviceImpl
 )
