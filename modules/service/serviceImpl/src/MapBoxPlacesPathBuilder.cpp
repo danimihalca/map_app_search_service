@@ -58,7 +58,10 @@ std::string MapBoxPlacesPathBuilder::build()
         {
             output += "access_token=" + m_accessToken;
         }
-        return output += "&access_token=" + m_accessToken;
+        else
+        {
+            output += "&access_token=" + m_accessToken;
+        }
     }
 
     return output;
