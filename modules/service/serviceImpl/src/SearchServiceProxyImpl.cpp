@@ -22,10 +22,11 @@ void SearchServiceProxyImpl::searchPlaces(const std::string& queryText, const se
     HttpRequest request;
 
     m_pathBuilder->reset();
+
     m_pathBuilder->withBasePath("/geocoding/v5/mapbox.places/");
     m_pathBuilder->withQuery(queryText);
     m_pathBuilder->withParameter("limit", "2");
-    m_pathBuilder->withParameter("proximity", "-122.39738575285674,37.7925147111369453");
+    // m_pathBuilder->withParameter("proximity", "-122.39738575285674,37.7925147111369453");
 
     request.path = m_pathBuilder->build();
     request.type = HttpRequestType::GET;
