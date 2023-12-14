@@ -5,13 +5,14 @@ cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 17)
 
+option(CONAN_DEPS_PATH "Conan CMake modules path")
+
 ###### Dependencies ######
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG RELEASE)
 endif()
 
-set(CONAN_DEPS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/conanBuild)
 list(PREPEND CMAKE_PREFIX_PATH ${CONAN_DEPS_PATH})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)

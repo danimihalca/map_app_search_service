@@ -31,3 +31,7 @@ setup_target_for_coverage_lcov(
     NAME coverage
     EXECUTABLE ${PROJECT_NAME}
 )
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+)

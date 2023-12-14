@@ -1,0 +1,36 @@
+name: Build service
+
+on: push
+
+jobs:
+  build:
+    name: Build Image
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/map-app-search-service-rel-env
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Build Debug
+        run: |
+          mkdir buildDbg
+          cd buildDbg
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=../search-service-dependencies-rel ..
+          make all
+
+      - name: Run coverage
+        run: make coverage
+
+      - name: Build Release
+        run: cd ..
+          mkdir buildRel
+          cd buildRel
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=../search-service-dependencies-rel ..
+          make install
