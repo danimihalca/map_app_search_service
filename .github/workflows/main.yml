@@ -33,7 +33,10 @@ jobs:
           make all
 
       - name: Run coverage
-        run: make coverage
+        run: |
+          echo $PWD
+          ls -alh
+          make coverage
 
       - name: Build Release
         run: cd ..
