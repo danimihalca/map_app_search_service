@@ -37,6 +37,12 @@ jobs:
           cd buildDbg
           make coverage
 
+      - name: Publish coverage
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: buildDbg/tests/unit_tests/coverage
+
       - name: Build Release
         run: |
           mkdir buildRel
