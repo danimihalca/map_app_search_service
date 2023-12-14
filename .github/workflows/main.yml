@@ -34,12 +34,11 @@ jobs:
 
       - name: Run coverage
         run: |
-          echo $PWD
-          ls -alh
+          cd buildDbg
           make coverage
 
       - name: Build Release
-        run: cd ..
+        run: |
           mkdir buildRel
           cd buildRel
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=../search-service-dependencies-rel ..
