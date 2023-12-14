@@ -35,7 +35,7 @@ jobs:
       - name: Run unit tests
         run: |
           cd buildDbg/out/bin
-          ./map_app_search_service_unit_tests --gtest_output="xml.report.xml"
+          ./map_app_search_service_unit_tests --gtest_output="xml:report.xml"
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
