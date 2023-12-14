@@ -20,6 +20,8 @@ jobs:
 
       - name: Build Debug
         run: |
+          echo $PWD
+          ls -alh
           mkdir buildDbg
           cd buildDbg
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=../search-service-dependencies-rel ..
