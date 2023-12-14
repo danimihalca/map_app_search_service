@@ -15,6 +15,9 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Install git
+        run: apt install -y git
+
       - name: Check out code
         uses: actions/checkout@v4
         with:
