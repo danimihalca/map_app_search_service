@@ -26,3 +26,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC httpClientImpl
     PUBLIC serviceImpl
 )
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+)
