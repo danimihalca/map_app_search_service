@@ -41,5 +41,5 @@ jobs:
         run: |
           mkdir buildRel
           cd buildRel
-          # cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=/workspace/search-service-dependencies-rel ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=/workspace/search-service-dependencies-rel ..
           make install
