@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build:
-    name: Build Image
+    name: Build service
     permissions: write-all
     runs-on: ubuntu-latest
 
@@ -24,7 +24,7 @@ jobs:
           ls -alh ..
           mkdir buildDbg
           cd buildDbg
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=../../search-service-dependencies-rel ..
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=out -DCONAN_DEPS_PATH=/workspace/search-service-dependencies-rel ..
           make all
 
       - name: Run coverage
