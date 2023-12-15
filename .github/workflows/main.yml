@@ -66,3 +66,18 @@ jobs:
         with:
           name: map-app-search-service-rel
           path: buildRel/out
+
+  publish:
+    name: Build Image
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: map-app-search-service-rel
+          path: .
+      - run: |
+        unzip map-app-search-service-rel.zip -d map-app-search-service-rel
+        docker build --build-arg="APP=./map-app-search-service-rel" -t map-app-search-service-run .
