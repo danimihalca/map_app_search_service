@@ -79,5 +79,5 @@ jobs:
           name: map-app-search-service-rel
           path: .
       - run: |
-        unzip map-app-search-service-rel.zip -d map-app-search-service-rel
-        docker build --build-arg="APP=./map-app-search-service-rel" -t map-app-search-service-run .
+          unzip map-app-search-service-rel.zip -d map-app-search-service-rel
+          docker build --build-arg="APP=./map-app-search-service-rel" -t map-app-search-service-run .
