@@ -72,6 +72,9 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     needs: build
+    env:
+      ECR_REPOSITORY: map-app-search-service
+      IMAGE_TAG: ${{ github.sha }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -93,11 +96,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build and tag image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: map-app-search-service
-          IMAGE_TAG: map-app-search-service
         run: |
           docker build --build-arg="APP=./map-app-search-service-rel" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        if: github.ref_name == 'main'
+        run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
