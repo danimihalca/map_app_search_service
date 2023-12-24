@@ -7,7 +7,9 @@ RUN mkdir /workspace
 WORKDIR /workspace
 COPY $APP .
 
-# EXPOSE 12345
+EXPOSE 12345
+
+RUN chmod 755 /workspace/bin/map_app_search_service_bin
 
 ENTRYPOINT /workspace/bin/map_app_search_service_bin $MAPBOX_TOKEN
 
