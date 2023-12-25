@@ -18,6 +18,7 @@ void SearchEndpoint::places(const drogon::HttpRequestPtr&                       
     m_searchService->searchPlaces(queryText, [callback](const std::string& response) {
         auto resp = drogon::HttpResponse::newHttpResponse();
         resp->setBody(response);
+        resp->addHeader("Access-Control-Allow-Origin", "*");
         callback(resp);
     });
 }
