@@ -110,8 +110,8 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Install kubectl
-        if: github.ref_name == 'main' && ${{ vars.DEPLOY_ON_K8S }} == 'true'
         uses: azure/setup-kubectl@v2.0
+        if: github.ref_name == 'main' && ${{ vars.DEPLOY_ON_K8S }} == 'true'
         with:
           version: latest
 
@@ -126,6 +126,5 @@ jobs:
           kubectl create secret generic mapbox-access --from-literal=token=${{ secrets.MAPBOX_TOKEN }}
 
           cat k8s_service.tmp.yml | envsubst > k8s_service.yml
-          cat k8s_service.yml
 
           kubectl apply -f k8s_service.yml
