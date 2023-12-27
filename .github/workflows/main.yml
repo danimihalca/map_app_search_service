@@ -108,3 +108,23 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Install kubectl
+        if: ${{ vars.DEPLOY_ON_K8S }} == 'true'
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: latest
+
+      - name: Deploy to K8s
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        if: ${{ vars.DEPLOY_ON_K8S }} == 'true'
+        run: |
+          aws eks update-kubeconfig --name MapApp --region eu-central-1
+
+          kubectl create secret generic mapbox-access  --from-literal=token= ${{ secrets.MAPBOX_TOKEN }}
+
+          cat k8s_service.tmp.yml | envsubst > k8s_service.yml
+          cat k8s_service.yml
+
+          kubectl apply -f k8s_service.yml
