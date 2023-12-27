@@ -122,7 +122,7 @@ jobs:
         run: |
           aws eks update-kubeconfig --name MapApp --region eu-central-1
 
-          kubectl create secret generic mapbox-access  --from-literal=token= ${{ secrets.MAPBOX_TOKEN }}
+          kubectl create secret generic mapbox-access --from-literal=token=${{ secrets.MAPBOX_TOKEN }}
 
           cat k8s_service.tmp.yml | envsubst > k8s_service.yml
           cat k8s_service.yml
