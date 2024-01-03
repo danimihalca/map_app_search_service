@@ -13,11 +13,6 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
-      - name: "Set extra environment variables"
-        run: |
-          [ "$GITHUB_REF_NAME" == "main" ] && IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" || IMAGE_NAME="dummy_image"
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -80,15 +75,18 @@ jobs:
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
         if: github.ref_name == 'main'
 
-      - name: Build and tag image
+      - name: "Set extra environment variables"
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          [ "$GITHUB_REF_NAME" == "main" ] && IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" || IMAGE_NAME="dummy_image"
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Build and tag image
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target runner -t $IMAGE_NAME .
 
       - name: Push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         if: github.ref_name == 'main'
         run: |
           docker push $IMAGE_NAME
@@ -100,8 +98,6 @@ jobs:
           version: latest
 
       - name: Deploy to K8s
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
         run: |
           aws eks update-kubeconfig --name MapApp --region eu-central-1
