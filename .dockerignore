@@ -1,0 +1,9 @@
+.cache
+.github
+.vscode
+.build*
+.conanBuild
+
+output
+
+Dockerfile
