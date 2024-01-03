@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_ENV: ghcr.io/${{ github.repository_owner }}/map-app-search-service-rel-env
+      ECR_REPOSITORY: map-app-search-service
+      IMAGE_TAG: ${{ github.sha }}
 
     steps:
       - name: Login to GitHub Container Registry
@@ -59,24 +61,6 @@ jobs:
         with:
           name: map-app-search-service-rel
           path: output/buildRel
-
-  publish:
-    name: Build Image
-    permissions: write-all
-    runs-on: ubuntu-latest
-    needs: build
-    env:
-      ECR_REPOSITORY: map-app-search-service
-      IMAGE_TAG: ${{ github.sha }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: map-app-search-service-rel
-          path: map-app-search-service-rel
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
