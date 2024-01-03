@@ -24,7 +24,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-
+          persist-credentials: true
+          
       - name: Build Debug
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target build_debug .
