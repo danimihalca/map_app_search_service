@@ -25,13 +25,19 @@ spec:
     spec:
       containers:
         - name: search-service-cont
-          env:
-          - name: MAPBOX_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: mapbox-access
-                key: token
           image: $IMAGE_NAME
           ports:
           - containerPort: 12345
             protocol: TCP
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/run/secrets/mapbox_token"
+              readOnly: true
+              subPath: mapbox_token
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: mapbox-access
+            items:
+              - key: token
+                path: mapbox_token
