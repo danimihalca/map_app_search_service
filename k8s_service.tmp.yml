@@ -4,8 +4,8 @@ metadata:
   name: search-service
 spec:
   ports:
-    - name: 8181-80
-      port: 8181
+    - name: 12345
+      port: 12345
       protocol: TCP
       targetPort: 12345
   selector:
