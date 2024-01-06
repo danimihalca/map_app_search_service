@@ -27,9 +27,17 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ${GTest_LIBRARIES}
 )
 
+set(COVERAGE_EXCLUDES
+    "/usr/include/*"
+    "${GTest_INCLUDE_DIR}/*"
+    "tests/*"
+    "*/inc/*"
+)
+
 setup_target_for_coverage_lcov(
     NAME coverage
     EXECUTABLE ${PROJECT_NAME}
+    BASE_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 install(TARGETS ${PROJECT_NAME}
