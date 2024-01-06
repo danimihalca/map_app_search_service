@@ -2,8 +2,8 @@ name: Build service
 
 on: 
   push:
-    branches: 
-      - main
+    # branches:
+    #   - main
   pull_request:
   workflow_dispatch:
     inputs:
@@ -106,6 +106,7 @@ jobs:
         with:
           submodules: true
           token: ${{ secrets.BASE_ENV_TOKEN }}
+          ref: ${{ env.CONFIG_CHECKOUT_SOURCE }}
 
       - name: Build Debug
         run: |
