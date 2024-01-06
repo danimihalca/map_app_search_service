@@ -18,12 +18,12 @@ on:
             default: false
             type: boolean
       run_tests:
-          description: "Run tests"
+          description: "Run tests (req. build debug)"
           required: true
           default: false
           type: boolean
       run_coverage:
-          description: "Run coverage"
+          description: "Run coverage (req. build debug)"
           required: true
           default: false
           type: boolean
@@ -33,17 +33,17 @@ on:
           default: true
           type: boolean
       build_release_image:
-          description: "Build release image"
+          description: "Build release image (req. build release)"
           required: true
           default: true
           type: boolean
       deploy_image_to_repository:
-        description: "Deploy image to repository"
+        description: "Deploy image to repository (req. build release image)"
         required: true
         default: false
         type: boolean
       deploy_image_to_cluster:
-        description: "Deploy image to repository"
+        description: "Deploy image to cluster (req. deploy/predeployed image to repository)"
         required: true
         default: false
         type: boolean
