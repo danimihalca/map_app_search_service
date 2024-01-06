@@ -1,6 +1,53 @@
 name: Build service
 
-on: push
+on: 
+  push:
+    branches: 
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      checkout_source:
+          description: "Checkout source (branch/commit)"
+          required: true
+          default: "main"
+          type: string
+      build_debug:
+            description: "Build debug"
+            required: true
+            default: false
+            type: boolean
+      run_tests:
+          description: "Run tests"
+          required: true
+          default: false
+          type: boolean
+      run_coverage:
+          description: "Run coverage"
+          required: true
+          default: false
+          type: boolean
+      build_release:
+          description: "Build release"
+          required: true
+          default: true
+          type: boolean
+      build_release_image:
+          description: "Build release image"
+          required: true
+          default: true
+          type: boolean
+      deploy_image_to_repository:
+        description: "Deploy image to repository"
+        required: true
+        default: false
+        type: boolean
+      deploy_image_to_cluster:
+        description: "Deploy image to repository"
+        required: true
+        default: false
+        type: boolean
+
 
 jobs:
   build:
@@ -13,6 +60,40 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
+      - name: "Set configuration environment variables"
+        env:
+          DEPLOY: ${{ (vars.DEPLOY_ON_K8S == 'true' && github.ref_name == 'main' ) }}
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]]; then
+            #TODO: allow only owner
+            export CONFIG_CHECKOUT_SOURCE=${{ inputs.checkout_source }}
+            export CONFIG_BUILD_DEBUG=${{ inputs.build_debug }}
+            export CONFIG_RUN_TESTS=${{ inputs.run_tests }}
+            export CONFIG_RUN_COVERAGE=${{ inputs.run_coverage }}
+            export CONFIG_BUILD_RELEASE=${{ inputs.build_release }}
+            export CONFIG_BUILD_RELEASE_IMAGE=${{ inputs.build_release_image }}
+            export CONFIG_DEPLOY_TO_REPOSITORY=${{ inputs.deploy_image_to_repository }}
+            export CONFIG_DEPLOY_TO_CLUSTER=${{ inputs.deploy_image_to_cluster }}
+          else
+            export CONFIG_CHECKOUT_SOURCE=$GITHUB_SHA
+            export CONFIG_BUILD_DEBUG=true
+            export CONFIG_RUN_TESTS=true
+            export CONFIG_RUN_COVERAGE=true
+            export CONFIG_BUILD_RELEASE=true
+            export CONFIG_BUILD_RELEASE_IMAGE=true
+            export CONFIG_DEPLOY_TO_REPOSITORY=$DEPLOY
+            export CONFIG_DEPLOY_TO_CLUSTER=$DEPLOY
+          fi
+
+          echo "CONFIG_CHECKOUT_SOURCE=$CONFIG_CHECKOUT_SOURCE" >> $GITHUB_ENV
+          echo "CONFIG_BUILD_DEBUG=$CONFIG_BUILD_DEBUG" >> $GITHUB_ENV
+          echo "CONFIG_RUN_TESTS=$CONFIG_RUN_TESTS" >> $GITHUB_ENV
+          echo "CONFIG_RUN_COVERAGE=$CONFIG_RUN_COVERAGE" >> $GITHUB_ENV
+          echo "CONFIG_BUILD_RELEASE=$CONFIG_BUILD_RELEASE" >> $GITHUB_ENV
+          echo "CONFIG_BUILD_RELEASE_IMAGE=$CONFIG_BUILD_RELEASE_IMAGE" >> $GITHUB_ENV
+          echo "CONFIG_DEPLOY_TO_REPOSITORY=$CONFIG_DEPLOY_TO_REPOSITORY" >> $GITHUB_ENV
+          echo "CONFIG_DEPLOY_TO_CLUSTER=$CONFIG_DEPLOY_TO_CLUSTER" >> $GITHUB_ENV
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
