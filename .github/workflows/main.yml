@@ -57,7 +57,6 @@ jobs:
     env:
       BASE_ENV: ghcr.io/${{ github.repository_owner }}/map-app-search-service-rel-env
       ECR_REPOSITORY: map-app-search-service
-      IMAGE_TAG: ${{ github.sha }}
 
     steps:
       - name: "Set configuration environment variables"
@@ -109,37 +108,43 @@ jobs:
           ref: ${{ env.CONFIG_CHECKOUT_SOURCE }}
 
       - name: Build Debug
+        if: ${{ env.CONFIG_BUILD_DEBUG == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target build_debug .
 
       - name: Run unit tests
+        if: ${{ env.CONFIG_RUN_TESTS == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target run_unit_tests .
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target get_unit_tests_report . -o output
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
-        if: success() || failure() # always run even if the previous step fails
+        if:   ${{ env.CONFIG_RUN_TESTS == 'true' }} && ( success() || failure() )# always run even if the previous step fails
         with:
           report_paths: "output/report.xml"
 
       - name: Run coverage
+        if: ${{ env.CONFIG_RUN_COVERAGE == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target run_coverage .
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target get_coverage . -o output/coverage
 
       - name: Publish coverage
+        if: ${{ env.CONFIG_RUN_COVERAGE == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: output/coverage
 
       - name: Build Release
+        if: ${{ env.CONFIG_BUILD_RELEASE == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target build_release .
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target get_release_build . -o output/buildRel
 
       - name: Publish Release
+        if: ${{ env.CONFIG_BUILD_RELEASE == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: map-app-search-service-rel
@@ -147,7 +152,7 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
-        if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -156,33 +161,34 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
-        if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
 
-      - name: "Set extra environment variables"
+      - name: "Set release image name"
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          DEPLOY: ${{ vars.DEPLOY_ON_K8S }}
         run: |
-          [ "$GITHUB_REF_NAME" == "main" ] && [[ "$DEPLOY" == "true" ]] && IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" || IMAGE_NAME="dummy_image"
+          IMAGE_TAG=`git log -1 '--format=format:%H'`
+          [ "$CONFIG_DEPLOY_TO_REPOSITORY" == "true" ] || [ "$CONFIG_DEPLOY_TO_CLUSTER" == "true" ] && IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" || IMAGE_NAME="dummy_image:$IMAGE_TAG"
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
-      - name: Build and tag image
+      - name: Build release image
+        if: ${{ env.CONFIG_BUILD_RELEASE_IMAGE == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target runner -t $IMAGE_NAME .
 
       - name: Push image to ECR
-        if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }}
         run: |
           docker push $IMAGE_NAME
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v2.0
-        if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
         with:
           version: latest
 
       - name: Deploy to K8s
-        if: ${{ github.ref_name == 'main' && vars.DEPLOY_ON_K8S  == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
         run: |
           aws eks update-kubeconfig --name MapApp --region eu-central-1
 
