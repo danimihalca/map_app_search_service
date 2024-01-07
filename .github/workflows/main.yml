@@ -93,6 +93,9 @@ jobs:
           echo "CONFIG_DEPLOY_TO_REPOSITORY=$CONFIG_DEPLOY_TO_REPOSITORY" >> $GITHUB_ENV
           echo "CONFIG_DEPLOY_TO_CLUSTER=$CONFIG_DEPLOY_TO_CLUSTER" >> $GITHUB_ENV
 
+          echo "Using configuration:"
+          cat $GITHUB_ENV
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -190,6 +193,8 @@ jobs:
       - name: Deploy to K8s
         if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
         run: |
+          echo "Deploying image: $IMAGE_NAME"
+
           aws eks update-kubeconfig --name MapApp --region eu-central-1
 
           kubectl delete secret mapbox-access --ignore-not-found
