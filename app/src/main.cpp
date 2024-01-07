@@ -24,7 +24,9 @@ int main(int argc, char** argv)
     searchEndpoint->initPathRouting();
     drogon::app().registerController(searchEndpoint);
 
+    std::cout << "Starting service..." << std::endl;
     drogon::app().run();
+    std::cout << "Ending service..." << std::endl;
 
     return 0;
 }
