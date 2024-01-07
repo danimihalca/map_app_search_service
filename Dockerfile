@@ -64,7 +64,7 @@ RUN chmod 755 /workspace/bin/map_app_search_service_bin
 COPY entrypoint.sh /workspace/entrypoint.sh
 RUN chmod +x /workspace/entrypoint.sh
 
-ENTRYPOINT /workspace/entrypoint.sh
+ENTRYPOINT ["/workspace/entrypoint.sh"]
 
 # docker build --build-arg="APP=./build/out" -t map-app-search-service-run .
 # docker run -dit -p 12345:12345 -e MAPBOX_TOKEN=<TOKEN> map-app-search-service-run
