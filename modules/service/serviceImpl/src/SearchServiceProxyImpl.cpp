@@ -17,7 +17,8 @@ SearchServiceProxyImpl::SearchServiceProxyImpl(std::unique_ptr<httpClient::HttpC
 {
 }
 
-void SearchServiceProxyImpl::searchPlaces(const std::string& queryText, const std::string& proximity, const service::SearchResponseCallback& callback)
+void SearchServiceProxyImpl::searchPlaces(const std::string& queryText, const std::string& proximity,
+                                          const service::SearchResponseCallback& callback)
 {
     HttpRequest request;
 

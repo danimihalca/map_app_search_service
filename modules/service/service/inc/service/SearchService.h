@@ -13,7 +13,8 @@ class SearchService
 public:
     virtual ~SearchService() = default;
 
-    virtual void searchPlaces(const std::string& queryText, const std::string& proximity, const SearchResponseCallback& callback) = 0;
+    virtual void searchPlaces(const std::string& queryText, const std::string& proximity,
+                              const SearchResponseCallback& callback) = 0;
 };
 
 }  // namespace service
