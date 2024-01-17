@@ -19,7 +19,7 @@ class SearchEndpoint : public drogon::HttpController<SearchEndpoint, false>
 public:
     METHOD_LIST_BEGIN
 
-    ADD_METHOD_TO(SearchEndpoint::places, "/search/places/{queryText}", drogon::Get);  // path is /api/v1/User/{arg1}
+    ADD_METHOD_TO(SearchEndpoint::places, "/search/places/{queryText}&proximity={proximity}", drogon::Get);
 
     METHOD_LIST_END
 
@@ -27,7 +27,7 @@ public:
     SearchEndpoint(std::unique_ptr<service::SearchService>&& service);
 
     void places(const drogon::HttpRequestPtr& request, std::function<void(const drogon::HttpResponsePtr&)>&& callback,
-                const std::string& queryText);
+                const std::string& queryText, std::string&& proximity);
 
 private:
     std::unique_ptr<service::SearchService> m_searchService;
