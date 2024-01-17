@@ -27,7 +27,9 @@ void SearchServiceProxyImpl::searchPlaces(const std::string& queryText, const st
     m_pathBuilder->withBasePath("/geocoding/v5/mapbox.places/");
     m_pathBuilder->withQuery(queryText);
     // m_pathBuilder->withParameter("limit", "2");
-    m_pathBuilder->withParameter("proximity", proximity);
+    if (!proximity.empty()) {
+        m_pathBuilder->withParameter("proximity", proximity);
+    }
 
     request.path = m_pathBuilder->build();
     request.type = HttpRequestType::GET;
