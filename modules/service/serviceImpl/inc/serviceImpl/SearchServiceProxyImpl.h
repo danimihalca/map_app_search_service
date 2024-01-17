@@ -21,7 +21,8 @@ public:
                            std::unique_ptr<PathBuilder>&&            pathBuilder);
 
 public:  // Implements service::SearchService
-    virtual void searchPlaces(const std::string& queryText, const std::string& proximity, const service::SearchResponseCallback& callback) override;
+    virtual void searchPlaces(const std::string& queryText, const std::string& proximity,
+                              const service::SearchResponseCallback& callback) override;
 
 private:
     std::unique_ptr<httpClient::HttpClient> m_client;

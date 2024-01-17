@@ -66,7 +66,7 @@ TEST_F(SearchServiceProxyImplTest, basic_flow)
         .WillOnce(testing::SaveArg<1>(&internalServiceCallback));
 
     testing::MockFunction<void(const std::string&)> mockCallback;
-    service.searchPlaces("kfc", mockCallback.AsStdFunction());
+    service.searchPlaces("kfc", "23, 45", mockCallback.AsStdFunction());
 
     HttpResponse response = {HttpResponseStatus::OK_200, "<BODY>"};
     EXPECT_CALL(mockCallback, Call("<BODY>")).Times(1);

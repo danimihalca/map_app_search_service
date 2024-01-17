@@ -19,7 +19,7 @@ class SearchEndpoint : public drogon::HttpController<SearchEndpoint, false>
 public:
     METHOD_LIST_BEGIN
 
-    ADD_METHOD_TO(SearchEndpoint::places, "/search/places/{queryText}&proximity={proximity}", drogon::Get);
+    ADD_METHOD_TO(SearchEndpoint::places, "/search/places/{queryText}?proximity={proximity}", drogon::Get);
 
     METHOD_LIST_END
 
