@@ -1,18 +1,13 @@
 @startuml Class Diagram
 
 skinparam linetype ortho
-' skinparam rectangle {
-'     BackgroundColor #DDDDDD
-' }
 
 skinparam package {
     BackgroundColor #DDDDDD
 }
 
-' set separator none
-
 rectangle "Endpoint Layer" as endpoint_layer #EEEBDC {
-    namespace endpoint {
+    package endpoint {
         class SearchController {
             +places()
         }
@@ -21,13 +16,13 @@ rectangle "Endpoint Layer" as endpoint_layer #EEEBDC {
 
 rectangle "Service Layer" as service_layer #EEEBDC {
     ' Main service
-    namespace service {
+    package service {
         interface SearchService {
             {abstract} +searchPlaces()
         }
     }
 
-    namespace serviceImpl {
+    package serviceImpl {
         interface PathBuilder {
             {abstract} +withBasePath()
             {abstract} +withQuery()
@@ -46,7 +41,7 @@ rectangle "Service Layer" as service_layer #EEEBDC {
    }
 
     ' Relations
-    serviceImpl.SearchServiceProxyImpl --|> service.SearchService
+    serviceImpl::SearchServiceProxyImpl --|> service::SearchService
 
     ' Alignment
     service -[hidden]down- serviceImpl
@@ -57,7 +52,7 @@ rectangle "Service Layer" as service_layer #EEEBDC {
 
 rectangle "Utils" as utils_layer #EEEBDC {
     ' HTTP Client
-    namespace httpClient {
+    package httpClient {
         interface HttpClient {
             {abstract} +sendRequest()
         }
@@ -65,7 +60,7 @@ rectangle "Utils" as utils_layer #EEEBDC {
 
     }
 
-    namespace httpClientImpl {
+    package httpClientImpl {
         class HttpClientImpl {
             +sendRequest()
         }
@@ -73,7 +68,7 @@ rectangle "Utils" as utils_layer #EEEBDC {
     }
 
     ' Relations
-    httpClientImpl.HttpClientImpl --|> httpClient.HttpClient
+    httpClientImpl::HttpClientImpl --|> httpClient::HttpClient
 
     ' Alignment
     httpClient -[hidden]down- httpClientImpl
@@ -82,23 +77,20 @@ rectangle "Utils" as utils_layer #EEEBDC {
 
 ' External dependencies
 rectangle "External" as external_layer #EEEBDC{
-    namespace drogon {
+    package drogon {
         interface HttpController
-        interface HttpClient
-
-        ' Alignment
-        HttpController -[hidden]down- HttpClient
+        interface DrogonHttpClient as "HttpClient"
     }
 }
 
 
 ' Relations
-endpoint.SearchController --|> drogon.HttpController
-endpoint.SearchController o--> service.SearchService
+SearchController --|> HttpController
+SearchController o--> SearchService
 
-serviceImpl.SearchServiceProxyImpl --> httpClient.HttpClient
+SearchServiceProxyImpl --> HttpClient
 
-httpClientImpl.HttpClientImpl *-- drogon.HttpClient
+HttpClientImpl *-- DrogonHttpClient
 
 
 ' Alignment
