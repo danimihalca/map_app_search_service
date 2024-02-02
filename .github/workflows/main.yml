@@ -37,8 +37,14 @@ on:
           required: true
           default: true
           type: boolean
+      target_cloud:
+          type: choice
+          description: "Cloud (for image publish to repository and/or deployment to cluster)
+          options:
+          - AWS
+          - Azure
       deploy_image_to_repository:
-        description: "Deploy image to repository (req. build release image)"
+        description: "Publish image to repository (req. build release image)"
         required: true
         default: false
         type: boolean
@@ -57,6 +63,7 @@ jobs:
     env:
       BASE_ENV: ghcr.io/${{ github.repository_owner }}/map-app-search-service-rel-env
       ECR_REPOSITORY: map-app-search-service
+      AKR_REPOSITORY: MapAppSearchService
 
     steps:
       - name: "Set configuration environment variables"
@@ -84,12 +91,15 @@ jobs:
             export CONFIG_DEPLOY_TO_CLUSTER=$DEPLOY
           fi
 
+          export CONFIG_TARGET_CLOUD=${{ inputs.target_cloud }}
+
           echo "CONFIG_CHECKOUT_SOURCE=$CONFIG_CHECKOUT_SOURCE" >> $GITHUB_ENV
           echo "CONFIG_BUILD_DEBUG=$CONFIG_BUILD_DEBUG" >> $GITHUB_ENV
           echo "CONFIG_RUN_TESTS=$CONFIG_RUN_TESTS" >> $GITHUB_ENV
           echo "CONFIG_RUN_COVERAGE=$CONFIG_RUN_COVERAGE" >> $GITHUB_ENV
           echo "CONFIG_BUILD_RELEASE=$CONFIG_BUILD_RELEASE" >> $GITHUB_ENV
           echo "CONFIG_BUILD_RELEASE_IMAGE=$CONFIG_BUILD_RELEASE_IMAGE" >> $GITHUB_ENV
+          echo "CONFIG_TARGET_CLOUD=$CONFIG_TARGET_CLOUD" >> $GITHUB_ENV
           echo "CONFIG_DEPLOY_TO_REPOSITORY=$CONFIG_DEPLOY_TO_REPOSITORY" >> $GITHUB_ENV
           echo "CONFIG_DEPLOY_TO_CLUSTER=$CONFIG_DEPLOY_TO_CLUSTER" >> $GITHUB_ENV
 
@@ -155,7 +165,7 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
-        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -164,14 +174,22 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
-        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} && ${{ env.CONFIG_TARGET_CLOUD == 'Azure' }}
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: "Set release image name"
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
+          [ "$CONFIG_TARGET_CLOUD" == "AWS" ] && IMAGE_REGISTRY=$ECR_REGISTRY || IMAGE_REGISTRY="${{ secrets.REGISTRY_LOGIN_SERVER }}"
+          [ "$CONFIG_TARGET_CLOUD" == "AWS" ] && BASE_IMAGE_NAME_NAME=$ECR_REPOSITORY || BASE_IMAGE_NAME=$AKR_REPOSITORY
           IMAGE_TAG=`git log -1 '--format=format:%H'`
-          [ "$CONFIG_DEPLOY_TO_REPOSITORY" == "true" ] || [ "$CONFIG_DEPLOY_TO_CLUSTER" == "true" ] && IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" || IMAGE_NAME="dummy_image:$IMAGE_TAG"
+          [ "$CONFIG_DEPLOY_TO_REPOSITORY" == "true" ] || [ "$CONFIG_DEPLOY_TO_CLUSTER" == "true" ] && IMAGE_NAME="$IMAGE_REGISTRY/$BASE_IMAGE_NAME:$IMAGE_TAG" || IMAGE_NAME="dummy_image:$IMAGE_TAG"
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
       - name: Build release image
@@ -179,24 +197,25 @@ jobs:
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target runner -t $IMAGE_NAME .
 
-      - name: Push image to ECR
+      - name: Push image to repository
         if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }}
         run: |
           docker push $IMAGE_NAME
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v2.0
-        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
         with:
           version: latest
 
       - name: Deploy to K8s
-        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}
+        if: ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
         run: |
           echo "Deploying image: $IMAGE_NAME"
 
           aws eks update-kubeconfig --name MapApp --region eu-central-1
 
+          # TODO: separate step, above part AWS specific, below common (plus Azure configuration TBD)
           kubectl delete secret mapbox-access --ignore-not-found
           kubectl create secret generic mapbox-access --from-literal=token=${{ secrets.MAPBOX_TOKEN }}
 
