@@ -39,7 +39,7 @@ on:
           type: boolean
       target_cloud:
           type: choice
-          description: "Cloud (for image publish to repository and/or deployment to cluster)
+          description: "Cloud (for image publish to repository and/or deployment to cluster)"
           options:
           - AWS
           - Azure
