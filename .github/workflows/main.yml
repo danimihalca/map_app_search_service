@@ -165,7 +165,7 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
-        if: (${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}) && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
+        if: ( ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }} || ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} ) && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -174,21 +174,13 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
-        if: (${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}) && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
+        if: ( ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }} || ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} ) && ${{ env.CONFIG_TARGET_CLOUD == 'AWS' }}
 
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
-        if: (${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}) && ${{ env.CONFIG_TARGET_CLOUD == 'Azure' }}
+        if: ( ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }} || ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} ) && ${{ env.CONFIG_TARGET_CLOUD == 'Azure' }}
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: 'Azure Docker login'
-        uses: azure/docker-login@v1
-        if: (${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' || env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }}) && ${{ env.CONFIG_TARGET_CLOUD == 'Azure' }}
-        with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: "Set release image name"
         env:
@@ -204,6 +196,14 @@ jobs:
         if: ${{ env.CONFIG_BUILD_RELEASE_IMAGE == 'true' }}
         run: |
           docker build --build-arg="BASE_ENV=$BASE_ENV" --target runner -t $IMAGE_NAME .
+
+      - name: 'Azure Docker login'
+        uses: azure/docker-login@v1
+        if: ( ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }} || ${{ env.CONFIG_DEPLOY_TO_CLUSTER == 'true' }} ) && ${{ env.CONFIG_TARGET_CLOUD == 'Azure' }}
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push image to repository
         if: ${{ env.CONFIG_DEPLOY_TO_REPOSITORY == 'true' }}
