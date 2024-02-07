@@ -1,0 +1,6 @@
+@map_app_search_service_HostAddress = http://localhost:5069
+
+GET {{map_app_search_service_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
