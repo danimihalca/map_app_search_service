@@ -44,6 +44,6 @@ public class Program
 
         app.MapControllers();
 
-        app.Run();
+        app.Run("http://+:12345");
     }
 }

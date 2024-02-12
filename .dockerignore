@@ -1,8 +1,9 @@
 .cache
 .github
 .vscode
-.build*
-.conanBuild
+bin
+out
+obj
 
 output
 
