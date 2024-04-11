@@ -1,7 +1,7 @@
 project(map_app_search_service)
 
 ###### Project set-up ######
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_CXX_STANDARD 17)
 

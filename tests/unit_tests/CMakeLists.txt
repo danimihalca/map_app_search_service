@@ -2,7 +2,7 @@ project(map_app_search_service_unit_tests)
 
 
 ###### Project set-up ######
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 
 include(CodeCoverage)
 append_coverage_compiler_flags()
