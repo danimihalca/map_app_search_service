@@ -6,14 +6,6 @@ skinparam package {
     BackgroundColor #DDDDDD
 }
 
-rectangle "Endpoint Layer" as endpoint_layer #EEEBDC {
-    package endpoint {
-        class SearchController {
-            +places()
-        }
-    }
-}
-
 rectangle "Service Layer" as service_layer #EEEBDC {
     ' Main service
     package service {
@@ -94,7 +86,6 @@ HttpClientImpl *-- DrogonHttpClient
 
 
 ' Alignment
-endpoint_layer -[hidden]down- service_layer
 service_layer -[hidden]down- external_layer
 utils_layer -[hidden]right- external_layer
 

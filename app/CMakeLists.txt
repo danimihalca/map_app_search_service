@@ -16,17 +16,6 @@ add_executable(${PROJECT_NAME} ${SRC})
 
 ###### Dependencies integration ######
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC ${Drogon_INCLUDE_DIR}
-)
-
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC ${Drogon_LIBRARIES}
-    PUBLIC endpoint
-    PUBLIC httpClientImpl
-    PUBLIC serviceImpl
-)
-
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
 )
