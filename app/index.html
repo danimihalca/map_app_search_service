@@ -1,3 +1,12 @@
 <body>
     <script src="map_app_search_service_bin.js"></script>
+    <script>
+        Module.onRuntimeInitialized = _ => {
+            var token = window.prompt("Access Token:","");
+            
+            var service = new Module.SearchServiceWrapper(token);
+            service.searchPlaces("kfc", "");
+            service.delete();
+        }
+    </script>
 </body>
