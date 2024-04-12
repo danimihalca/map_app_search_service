@@ -10,7 +10,7 @@ on:
       checkout_source:
           description: "Checkout source (branch/commit)"
           required: true
-          default: "main"
+          default: "cpp_wasm_target"
           type: string
       build_debug:
             description: "Build debug"
