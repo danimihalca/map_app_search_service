@@ -1,74 +1,66 @@
 #include "httpClientImpl/HttpClientImpl.h"
 #include "httpClient/http_utils.h"
-#include <drogon/HttpClient.h>
-#include <drogon/HttpRequest.h>
-#include <drogon/HttpResponse.h>
-#include <drogon/HttpTypes.h>
+
 #include <iostream>
+
+#include <emscripten/fetch.h>
 
 namespace
 {
-drogon::HttpMethod httpRequestTypeToDrogonMethod(HttpRequestType type)
+
+void onRequestSuccess(emscripten_fetch_t *fetch)
+{
+    std::cout << "Request success for " << fetch->url << std::endl;
+
+    emscripten_fetch_close(fetch);
+}
+
+void onRequestFail(emscripten_fetch_t *fetch)
+{
+    std::cout << "Request failed for " << fetch->url << std::endl;
+    emscripten_fetch_close(fetch);
+}
+
+
+std::string httpRequestTypeToString(HttpRequestType type)
 {
     switch (type)
     {
         case HttpRequestType::GET:
         {
-            return drogon::HttpMethod::Get;
+            return "GET";
         }
         default:
         {
             std::cerr << "Unsupported HTTP request type: " << static_cast<int>(type);
-            assert(false);
+            //TODO: assert somehow for debug build?
+            // assert(false);
         }
     }
 }
 }  // namespace
 
-HttpResponseStatus drogonReqResultToHttpResponseStatus(drogon::ReqResult statusCode)
-{
-    switch (statusCode)
-    {
-        case drogon::ReqResult::Ok:
-        {
-            return HttpResponseStatus::OK_200;
-        }
-
-        case drogon::ReqResult::BadResponse:
-        {
-            return HttpResponseStatus::NOT_FOUND_404;
-        }
-
-        default:
-        {
-            std::cerr << "Unsupported HTTP status code: " << drogon::to_string_view(statusCode);
-            assert(false);
-        }
-    }
-}
-
 namespace httpClientImpl
 {
 
 HttpClientImpl::HttpClientImpl(const std::string& url)
-    : m_drogonHttpClient(drogon::HttpClient::newHttpClient(url))
+    : m_url{url}
 {
 }
 
 void HttpClientImpl::sendRequest(const HttpRequest& request, const HttpResponseCallback& callback)
 {
-    auto drogonRequest = drogon::HttpRequest::newHttpRequest();
-    drogonRequest->setPath(request.path);
-    drogonRequest->setMethod(::httpRequestTypeToDrogonMethod(request.type));
+    auto requestTypeStr = httpRequestTypeToString(request.type);
+    auto completeUrl = m_url + request.path;
 
-    m_drogonHttpClient->sendRequest(drogonRequest, [callback](drogon::ReqResult result, drogon::HttpResponsePtr resp) {
-        HttpResponse response;
-
-        response.status = ::drogonReqResultToHttpResponseStatus(result);
-        response.body   = resp->getBody();
-
-        callback(response);
-    });
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    strcpy(attr.requestMethod, requestTypeStr.c_str());
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.onsuccess = onRequestSuccess;
+    attr.onerror = onRequestFail;
+    emscripten_fetch(&attr, completeUrl.c_str());
+    //TODO: forward response via input callback
 }
 
 }  // namespace httpClientImpl
