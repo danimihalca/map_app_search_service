@@ -5,7 +5,10 @@
             var token = window.prompt("Access Token:","");
             
             var service = new Module.SearchServiceWrapper(token);
-            service.searchPlaces("kfc", "");
+            console.log("Sending request");
+            var result = service.searchPlaces("kfc", "");
+            console.log("Preparing to await result");
+            result.then(output => console.log(output))
             service.delete();
         }
     </script>

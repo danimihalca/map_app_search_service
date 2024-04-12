@@ -10,7 +10,7 @@ class SearchServiceWrapper
 {
 public:
     SearchServiceWrapper(std::string accessToken);
-    void searchPlaces(const std::string& queryText, const std::string& proximity);
+    std::string searchPlaces(const std::string& queryText, const std::string& proximity);
 
 private:
     std::unique_ptr<service::SearchService> m_searchService;

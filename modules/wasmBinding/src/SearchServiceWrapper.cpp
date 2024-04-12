@@ -4,6 +4,9 @@
 #include "serviceImpl/SearchServiceProxyImpl.h"
 #include "serviceImpl/MapBoxPlacesPathBuilder.h"
 
+#include <emscripten.h>
+#include <iostream>
+
 SearchServiceWrapper::SearchServiceWrapper(std::string accessToken)
 {
     auto httpClient = std::make_unique<httpClientImpl::HttpClientImpl>("https://api.mapbox.com");
@@ -13,7 +16,15 @@ SearchServiceWrapper::SearchServiceWrapper(std::string accessToken)
         std::make_unique<serviceImpl::SearchServiceProxyImpl>(std::move(httpClient), std::move(pathBuilder));
 }
 
-void SearchServiceWrapper::searchPlaces(const std::string& queryText, const std::string& proximity)
+std::string SearchServiceWrapper::searchPlaces(const std::string& queryText, const std::string& proximity)
 {
-    m_searchService->searchPlaces(queryText, proximity, [](const std::string&){});
+    std::string output;
+
+    m_searchService->searchPlaces(queryText, proximity, [&](const std::string& result){
+        std::cout << "Result ready to be notified" << std::endl;
+        output = result;
+    });
+
+    std::cout << "Notifying result" << std::endl;
+    return output;
 }

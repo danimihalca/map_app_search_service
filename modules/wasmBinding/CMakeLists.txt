@@ -16,3 +16,5 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC httpClientImpl
     PUBLIC serviceImpl
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-sASYNCIFY")

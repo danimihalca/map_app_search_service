@@ -16,7 +16,7 @@ add_executable(${PROJECT_NAME} ${SRC})
 
 ###### Dependencies integration ######
 
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s FETCH=1")
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s FETCH=1 -sASYNCIFY")
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC httpClientImpl

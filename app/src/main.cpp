@@ -16,9 +16,5 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 EMSCRIPTEN_KEEPALIVE
 int main(int argc, char** argv)
 {
-    std::cout << "Starting service..." << std::endl;
-
-    std::cout << "Ending service..." << std::endl;
-
     return 0;
 }
