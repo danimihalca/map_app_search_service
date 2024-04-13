@@ -10,31 +10,32 @@ namespace
 
 void onRequestSuccess(emscripten_fetch_t *fetch)
 {
-    std::cout << "0Request success for " << fetch->url << std::endl;
+    std::cout << "Request success for " << fetch->url << std::endl;
 
-    auto callback = *(const HttpResponseCallback *)fetch->userData;
+    auto callback = *static_cast<HttpResponseCallback*>(fetch->userData);
 
     auto response = HttpResponse{HttpResponseStatus::OK_200, fetch->data};
     callback(response);
 
     emscripten_fetch_close(fetch);
 
+    delete fetch->userData;
 }
 
 void onRequestFail(emscripten_fetch_t *fetch)
 {
-    std::cout << "0Request failed for " << fetch->url << std::endl;
+    std::cout << "Request failed for " << fetch->url << std::endl;
 
-    auto callback = *(const HttpResponseCallback *)fetch->userData;
+    auto callback = *static_cast<HttpResponseCallback*>(fetch->userData);
 
-    //TODO: proper status conversion
+    // TODO: proper status conversion
     auto response = HttpResponse{HttpResponseStatus::OK_200, fetch->data};
     callback(response);
 
     emscripten_fetch_close(fetch);
+
+    delete fetch->userData;
 }
-
-
 
 std::string httpRequestTypeToString(HttpRequestType type)
 {
@@ -70,39 +71,11 @@ void HttpClientImpl::sendRequest(const HttpRequest& request, const HttpResponseC
     emscripten_fetch_attr_t attr;
     emscripten_fetch_attr_init(&attr);
     strcpy(attr.requestMethod, requestTypeStr.c_str());
-    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_WAITABLE;
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
     attr.onsuccess = onRequestSuccess;
     attr.onerror = onRequestFail;
-    attr.userData = (void*) &callback;
-    emscripten_fetch_t * fetch = emscripten_fetch(&attr, completeUrl.c_str());
-
-    // emscripten_fetch_wait(fetch, INFINITY);
-    emscripten_sleep(100);
-    std::cout << "After sleep send request" << std::endl;
-
-
-//     EMSCRIPTEN_RESULT ret = EMSCRIPTEN_RESULT_TIMED_OUT;
-//     while(ret == EMSCRIPTEN_RESULT_TIMED_OUT)
-//     {
-//         emscripten_sleep(0);
-//         ret = emscripten_fetch_wait(fetch, 0);
-//     }
-
-//     if (fetch->status == 200)
-//     {
-//         std::cout << "Request success for " << fetch->url << std::endl;
-//     }
-//     else
-//     {
-//         std::cout << "Request failed for " <<fetch->status << " " << fetch->url << std::endl;
-//     }
-
-//     //TODO: proper status conversion
-//     auto response = HttpResponse{HttpResponseStatus::OK_200, fetch->data};
-
-//     emscripten_fetch_close(fetch);
-
-//     callback(response);
+    attr.userData = static_cast<void*>(new HttpResponseCallback(callback));
+    emscripten_fetch(&attr, completeUrl.c_str());
 }
 
 }  // namespace httpClientImpl

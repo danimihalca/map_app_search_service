@@ -16,15 +16,9 @@ SearchServiceWrapper::SearchServiceWrapper(std::string accessToken)
         std::make_unique<serviceImpl::SearchServiceProxyImpl>(std::move(httpClient), std::move(pathBuilder));
 }
 
-std::string SearchServiceWrapper::searchPlaces(const std::string& queryText, const std::string& proximity)
+void SearchServiceWrapper::searchPlaces(const std::string& queryText, const std::string& proximity, emscripten::val callback)
 {
-    std::string output;
-
-    m_searchService->searchPlaces(queryText, proximity, [&](const std::string& result){
-        std::cout << "Result ready to be notified" << std::endl;
-        output = result;
+    m_searchService->searchPlaces(queryText, proximity, [=](const std::string& result){
+        callback(result);
     });
-
-    std::cout << "Notifying result" << std::endl;
-    return output;
 }

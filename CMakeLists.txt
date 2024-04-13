@@ -9,6 +9,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+    set($ENV{EMCC_DEBUG} 1)
+endif()
+
 add_subdirectory(modules)
 
 add_subdirectory(app)
