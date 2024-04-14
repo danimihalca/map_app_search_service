@@ -11,8 +11,9 @@ Basic search service implemented as a reverse proxy on top of Mapbox's `Geocodin
 * Google Test and Google Mock
 * Conan
 
-Altenartive minimal implementation using ASP.NET Core on **dotnet_implementation** branch.
-
+Altenartive implementations:
+* ASP.NET Core on **dotnet_implementation** branch
+* WASM target using **Emscripten** on **cpp_wasm_target** branch
 
 ## Architecture
 
