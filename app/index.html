@@ -1,11 +1,15 @@
 <body>
     <script src="map_app_search_service_bin.js"></script>
     <script>
-        Module.onRuntimeInitialized = _ => {
+        SearchServiceModule().then( module => {
             var token = window.prompt("Access Token:","");
             
-            var service = new Module.SearchServiceWrapper(token);
-            service.searchPlaces("kfc", "", output => console.log(output));
-        }
+            var service = new module.SearchServiceWrapper(token);
+            service.searchPlaces("kfc", "", output => {
+                console.log(output);
+                let resObj = JSON.parse(output);
+                console.log(resObj);
+            });
+        })
     </script>
 </body>

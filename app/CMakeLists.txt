@@ -17,7 +17,7 @@ add_executable(${PROJECT_NAME} ${SRC})
 ###### Dependencies integration ######
 
 # set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s FETCH=1")
-target_link_options(${PROJECT_NAME} PRIVATE -s FETCH=1 --emit-tsd ${PROJECT_NAME}.d.ts)
+target_link_options(${PROJECT_NAME} PRIVATE -s FETCH=1 -sENVIRONMENT='web' -sMODULARIZE -sEXPORT_NAME="SearchServiceModule" --emit-tsd ${PROJECT_NAME}.d.ts)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC httpClientImpl
