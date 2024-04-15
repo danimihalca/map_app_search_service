@@ -14,7 +14,7 @@ void onRequestSuccess(emscripten_fetch_t *fetch)
 
     auto callback = *static_cast<HttpResponseCallback*>(fetch->userData);
 
-    auto response = HttpResponse{HttpResponseStatus::OK_200, fetch->data};
+    auto response = HttpResponse{HttpResponseStatus::OK_200, std::string(fetch->data, fetch->totalBytes)};
     callback(response);
 
     emscripten_fetch_close(fetch);
@@ -29,7 +29,7 @@ void onRequestFail(emscripten_fetch_t *fetch)
     auto callback = *static_cast<HttpResponseCallback*>(fetch->userData);
 
     // TODO: proper status conversion
-    auto response = HttpResponse{HttpResponseStatus::OK_200, fetch->data};
+    auto response = HttpResponse{HttpResponseStatus::OK_200, std::string(fetch->data, fetch->totalBytes)};
     callback(response);
 
     emscripten_fetch_close(fetch);
