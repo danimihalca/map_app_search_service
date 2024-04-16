@@ -22,6 +22,11 @@ on:
           required: true
           default: true
           type: boolean
+      publish_npm_package:
+          description: "Publish NPM package"
+          required: true
+          default: true
+          type: boolean
 
 jobs:
   build:
@@ -42,10 +47,12 @@ jobs:
             export CONFIG_CHECKOUT_SOURCE=${{ inputs.checkout_source }}
             export CONFIG_BUILD_DEBUG=${{ inputs.build_debug }}
             export CONFIG_BUILD_RELEASE=${{ inputs.build_release }}
+            export CONFIG_PUBLISH_NPM_PACKAGE=${{ inputs.publish_npm_package }}
           else
             export CONFIG_CHECKOUT_SOURCE=$GITHUB_SHA
             export CONFIG_BUILD_DEBUG=true
             export CONFIG_BUILD_RELEASE=true
+            export CONFIG_PUBLISH_NPM_PACKAGE=true
           fi
 
           echo "CONFIG_CHECKOUT_SOURCE=$CONFIG_CHECKOUT_SOURCE" >> $GITHUB_ENV
@@ -79,3 +86,19 @@ jobs:
         with:
           name: map-app-search-service-rel
           path: output/buildRel
+
+      - name: Setup Node
+        if: ${{ env.CONFIG_PUBLISH_NPM_PACKAGE == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@danimihalca'
+
+      - name: Publish NPM package
+        if: ${{ env.CONFIG_PUBLISH_NPM_PACKAGE == 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd output/buildRel/bin
+          npm publish

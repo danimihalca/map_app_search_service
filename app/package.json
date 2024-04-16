@@ -1,0 +1,20 @@
+{
+  "name": "@danimihalca/map_app_search_service_wasm",
+  "version": "1.0.0",
+  "description": "Map App Search Service",
+  "main": "map_app_search_service_bin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Mihalca",
+  "license": "ISC",
+  "types": "./map_app_search_service_bin.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danimihalca/map_app_search_service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danimihalca/map_app_search_service/issues"
+  },
+  "homepage": "https://github.com/danimihalca/map_app_search_service#readme"
+}
