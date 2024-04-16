@@ -1,6 +1,6 @@
 {
   "name": "@danimihalca/map_app_search_service_wasm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Map App Search Service",
   "main": "map_app_search_service_bin.js",
   "scripts": {
