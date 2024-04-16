@@ -69,7 +69,7 @@ jobs:
           submodules: true
           token: ${{ secrets.BASE_ENV_TOKEN }}
           ref: ${{ env.CONFIG_CHECKOUT_SOURCE }}
-
+          
       - name: Build Debug
         if: ${{ env.CONFIG_BUILD_DEBUG == 'true' }}
         run: |
@@ -102,4 +102,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd output/buildRel/bin
-          npm publish
+          npm publish --access public
