@@ -8,6 +8,7 @@ FROM emscripten/emsdk:3.1.57 as base_devel_env
 ARG SRC_PATH
 COPY . ${SRC_PATH}
 WORKDIR ${SRC_PATH}
+RUN npm install -g typescript
 
 FROM base_devel_env as debug_config
 ARG SRC_PATH
